@@ -84,21 +84,21 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 	}
 
 	// Рассчитываем дистанцию, среднюю скорость и калории в зависимости от вида активности
-	var distance float64
-	var meanSpeed float64
+	var calculatedDistance float64
+	var calculatedMeanSpeed float64
 	var calories float64
 
 	switch activity {
 	case "Ходьба":
-		distance = distance(steps, height)
-		meanSpeed = meanSpeed(steps, height, duration)
+		calculatedDistance = distance(steps, height)
+		calculatedMeanSpeed = meanSpeed(steps, height, duration)
 		calories, err = WalkingSpentCalories(steps, weight, height, duration)
 		if err != nil {
 			return "", err
 		}
 	case "Бег":
-		distance = distance(steps, height)
-		meanSpeed = meanSpeed(steps, height, duration)
+		calculatedDistance = distance(steps, height)
+		calculatedMeanSpeed = meanSpeed(steps, height, duration)
 		calories, err = RunningSpentCalories(steps, weight, height, duration)
 		if err != nil {
 			return "", err
@@ -109,7 +109,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 
 	// Формируем строку с информацией о тренировке
 	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f",
-		activity, duration.Hours(), distance, meanSpeed, calories)
+		activity, duration.Hours(), calculatedDistance, calculatedMeanSpeed, calories)
 
 	return result, nil
 }
