@@ -28,8 +28,8 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 
 	// Преобразовать первый элемент слайса (количество шагов) в тип int
 	steps, err := strconv.Atoi(parts[0])
-	if err != nil {
-		return 0, "", 0, err
+	if err != nil || steps <= 0 {
+		return 0, "", 0, fmt.Errorf("количество шагов должно быть больше 0")
 	}
 
 	// Получить вид активности
@@ -37,8 +37,8 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 
 	// Преобразуем третий элемент слайса в time.Duration
 	duration, err := time.ParseDuration(parts[2])
-	if err != nil {
-		return 0, "", 0, err
+	if err != nil || duration <= 0 {
+		return 0, "", 0, fmt.Errorf("продолжительность должна быть больше 0")
 	}
 
 	return steps, activity, duration, nil
@@ -108,7 +108,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 	}
 
 	// Формируем строку с информацией о тренировке
-	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f",
+	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n",
 		activity, duration.Hours(), calculatedDistance, calculatedMeanSpeed, calories)
 
 	return result, nil

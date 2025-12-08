@@ -1,8 +1,8 @@
 package daysteps
 
 import (
-	// Добавляем необходимые пакеты
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +29,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 	// Преобразовать первый элемент слайса (количество шагов) в тип int
 	steps, err := strconv.Atoi(parts[0])
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, fmt.Errorf("некорректные данные: количество шагов должно быть целым числом")
 	}
 
 	// Проверка: количество шагов должно быть больше 0
@@ -40,7 +40,11 @@ func parsePackage(data string) (int, time.Duration, error) {
 	// Преобразуем второй элемент слайса в time.Duration
 	duration, err := time.ParseDuration(parts[1])
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, fmt.Errorf("некорректные данные: продолжительность должна быть в формате времени (например, 30m)")
+	}
+
+	if duration <= 0 {
+		return 0, 0, fmt.Errorf("продолжительность должна быть больше 0")
 	}
 
 	return steps, duration, nil
@@ -50,12 +54,7 @@ func DayActionInfo(data string, weight, height float64) string {
 	// Получаем данные о количестве шагов и продолжительности прогулки
 	steps, duration, err := parsePackage(data)
 	if err != nil {
-		fmt.Println(err)
-		return ""
-	}
-
-	// Проверяем, что количество шагов больше 0
-	if steps <= 0 {
+		log.Printf("Ошибка: %v", err) // ВАЖНО: используем log вместо fmt.Println
 		return ""
 	}
 
@@ -65,16 +64,20 @@ func DayActionInfo(data string, weight, height float64) string {
 	// Переводим дистанцию в километры
 	distanceKilometers := distanceMeters / mInKm
 
-	// Вычислим количество калорий, потраченных на прогулке,  WalkingSpentCalories() будет определена в пакете spentcalories
+	// Вычислим количество калорий, потраченных на прогулке
 	calories, err := spentcalories.WalkingSpentCalories(steps, weight, height, duration)
 	if err != nil {
-		// Обработка ошибки
-		fmt.Println("Ошибка при вычислении калорий:", err)
+		log.Printf("Ошибка при вычислении калорий: %v", err) // ВАЖНО: используем log
 		return ""
 	}
 
 	// Формируем строку для возврата
-	result := fmt.Sprintf("Пройденное расстояние: %.2f км, потраченные калории: %.2f", distanceKilometers, calories)
+	result := fmt.Sprintf(
+		"Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n",
+		steps,
+		distanceKilometers,
+		calories,
+	)
 
 	return result
 }
